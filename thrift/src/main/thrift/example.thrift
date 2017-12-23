@@ -1,0 +1,18 @@
+namespace java com.example.thrift.generated
+#@namespace scala com.example.thrift.generated
+
+enum Sex {
+    MALE,
+    FEMALE,
+    OTHER
+}
+
+struct User {
+    1: string id
+    2: string name
+    3: i16 age
+}
+
+service UserService {
+  User getUser(1: string id)
+}
