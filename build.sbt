@@ -20,10 +20,13 @@ lazy val commonScalaVersion = Seq(
 
 lazy val commonDeps = Seq(
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-http" % "17.12.0",
-    "org.apache.thrift" % "libthrift" % "0.9.2",
-    "com.twitter" %% "scrooge-core" % "17.12.0" exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-thrift" % "17.12.0" exclude("com.twitter", "libthrift")
+    "com.twitter" %% "finagle-http"       % "17.12.0",
+    "org.apache.thrift" % "libthrift"     % "0.9.2",
+    "com.twitter" %% "scrooge-core"       % "17.12.0" exclude("com.twitter", "libthrift"),
+    "com.twitter" %% "finagle-thrift"     % "17.12.0" exclude("com.twitter", "libthrift"),
+    "com.twitter" %% "finagle-thrift"     % "17.12.0",
+    "com.twitter" %% "finagle-mux"        % "17.12.0",
+    "com.twitter" %% "finagle-thriftmux"  % "17.12.0"
   )
 )
 

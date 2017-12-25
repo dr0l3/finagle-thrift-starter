@@ -16,3 +16,7 @@ struct User {
 service UserService {
   User getUser(1: string id)
 }
+
+service BinaryService {
+  string fetchBlob(1: i64 id)
+}
