@@ -2,6 +2,7 @@
 //version := "0.1"
 //
 //mainClass := Some("server/com.example.Example")
+//yes!
 
 lazy val commonResolvers = Seq(
   resolvers += "twitter-repo" at "https://maven.twttr.com",
