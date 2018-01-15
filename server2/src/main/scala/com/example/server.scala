@@ -31,14 +31,14 @@ object Server extends App {
       .requestTimeout(com.twitter.util.Duration(30, TimeUnit.SECONDS))
       .daemon(true)
       .keepAlive(true)
-      .dest("localhost:1236")
+      .dest("127.0.0.1:1236")
       .build())
     override def fetchBlob(id: Long): Future[String] = {
       client.fetchBlob(1234L)
     }
   }
 
-//  val tracer = ZipkinTracer.mk(host = "localhost",
+//  val tracer = ZipkinTracer.mk(host = "127.0.0.1",
 //    port = 9410,
 //    statsReceiver = JavaLoggerStatsReceiver(),
 //    sampleRate = 1f)
@@ -48,14 +48,14 @@ object Server extends App {
 //      Thrift.client
 //        .withTracer(tracer)
 //        .withLabel("client2")
-//        .build[BinaryService.MethodPerEndpoint]("localhost:1236")
+//        .build[BinaryService.MethodPerEndpoint]("127.0.0.1:1236")
 //
 //    def fetchBlob(id: Long): Future[String] = {
 //      methodPerEndpoint.fetchBlob(1234L)
 //    }
 //  }
 
-  val addr = new InetSocketAddress("localhost",1235)
+  val addr = new InetSocketAddress("127.0.0.1",1235)
 
   val service:  Service[Array[Byte], Array[Byte]] = new BinaryService.FinagledService(
     iface = new OldServerImpl,
@@ -72,7 +72,7 @@ object Server extends App {
 //  val server = Thrift.server
 //    .withTracer(tracer)
 //    .withLabel("server2")
-//    .serveIface("localhost:1235", new ServerImpl)
+//    .serveIface("127.0.0.1:1235", new ServerImpl)
 
 //  Await.ready(server)
 

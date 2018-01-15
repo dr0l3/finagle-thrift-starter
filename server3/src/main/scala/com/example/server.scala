@@ -42,12 +42,12 @@ object Server extends App {
 
 
 
-//  val tracer = ZipkinTracer.mk(host = "localhost",
+//  val tracer = ZipkinTracer.mk(host = "127.0.0.1",
 //    port = 9410,
 //    statsReceiver = JavaLoggerStatsReceiver(),
 //    sampleRate = 1f)
 
-  val addr = new InetSocketAddress("localhost",1236)
+  val addr = new InetSocketAddress("127.0.0.1",1236)
 
   val service:  Service[Array[Byte], Array[Byte]] = new BinaryService.FinagledService(
     iface = new OldServerImpl,
@@ -64,7 +64,7 @@ object Server extends App {
 //  val server = Thrift.server
 //    .withLabel("server3")
 //    .withTracer(tracer)
-//    .serveIface("localhost:1236", new ServerImpl)
+//    .serveIface("127.0.0.1:1236", new ServerImpl)
 //  Await.ready(server)
 
   Await.result(oldServer)

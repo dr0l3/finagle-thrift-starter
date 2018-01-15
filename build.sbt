@@ -3,6 +3,8 @@
 //
 //mainClass := Some("server/com.example.Example")
 
+enablePlugins(JavaAppPackaging)
+
 
 lazy val commonResolvers = Seq(
   resolvers += "twitter-repo" at "https://maven.twttr.com",

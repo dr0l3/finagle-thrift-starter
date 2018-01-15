@@ -20,7 +20,7 @@ object Server extends App {
   BasicConfigurator.configure()
 
 
-//  val tracer = ZipkinTracer.mk(host = "localhost",
+//  val tracer = ZipkinTracer.mk(host = "127.0.0.1",
 //    port = 9410,
 //    statsReceiver = JavaLoggerStatsReceiver(),
 //    sampleRate = 1f)
@@ -30,7 +30,7 @@ object Server extends App {
 //      Thrift.client
 //        .withTracer(tracer)
 //        .withLabel("client1")
-//        .build[BinaryService.MethodPerEndpoint]("localhost:1235")
+//        .build[BinaryService.MethodPerEndpoint]("127.0.0.1:1235")
 //
 //    def fetchBlob(id: Long): Future[String] = {
 //      methodPerEndpoint.fetchBlob(1234L)
@@ -47,14 +47,14 @@ object Server extends App {
       .requestTimeout(com.twitter.util.Duration(30, TimeUnit.SECONDS))
       .daemon(true)
       .keepAlive(true)
-      .dest("localhost:1235")
+      .dest("127.0.0.1:1235")
       .build())
     override def fetchBlob(id: Long): Future[String] = {
       client.fetchBlob(1234L)
     }
   }
 
-  val addr = new InetSocketAddress("localhost",1234)
+  val addr = new InetSocketAddress("127.0.0.1",1234)
 
   val service:  Service[Array[Byte], Array[Byte]] = new BinaryService.FinagledService(
     iface = new OldServerImpl,
@@ -71,13 +71,13 @@ object Server extends App {
 //  val server = Thrift.server
 //    .withTracer(tracer)
 //    .withLabel("server")
-//    .serveIface("localhost:1234", new ServerImpl)
+//    .serveIface("127.0.0.1:1234", new ServerImpl)
 
 //  val methodPerEndpoint: BinaryService.MethodPerEndpoint =
 //    Thrift.client
 //      .withTracer(tracer)
 //      .withLabel("client0")
-//      .build[BinaryService.MethodPerEndpoint]("localhost:1234")
+//      .build[BinaryService.MethodPerEndpoint]("127.0.0.1:1234")
 
   val client = new BinaryService.FinagledClient(ClientBuilder()
     .name("client-server0")
@@ -88,7 +88,7 @@ object Server extends App {
     .requestTimeout(com.twitter.util.Duration(30, TimeUnit.SECONDS))
     .daemon(true)
     .keepAlive(true)
-    .dest("localhost:1234")
+    .dest("127.0.0.1:1234")
     .build())
 
 
