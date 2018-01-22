@@ -15,6 +15,8 @@ object Server extends App {
 
   BasicConfigurator.configure()
 
+  println(System.getenv())
+
   class ServerImpl extends BinaryService.MethodPerEndpoint {
     def fetchBlob(id: Long): Future[String] = {
       Trace.record("starting some extremely expensive computation")

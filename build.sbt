@@ -5,6 +5,7 @@
 
 enablePlugins(JavaAppPackaging)
 
+
 lazy val commonResolvers = Seq(
   resolvers += "twitter-repo" at "https://maven.twttr.com",
   resolvers += Resolver.bintrayRepo("twittercsl", "sbt-plugins/scrooge-sbt-plugin"),
@@ -26,8 +27,8 @@ lazy val commonDeps = Seq(
     "org.apache.thrift" % "libthrift"     % "0.9.2",
     "com.twitter" %% "scrooge-core"       % "17.12.0" exclude("com.twitter", "libthrift"),
     "com.twitter" %% "finagle-thrift"     % "17.12.0" exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-mux"        % "17.12.0",
-    "com.twitter" %% "finagle-thriftmux"  % "17.12.0",
+//    "com.twitter" %% "finagle-mux"        % "17.12.0",
+//    "com.twitter" %% "finagle-thriftmux"  % "17.12.0",
     "com.twitter" %% "finagle-zipkin"     % "17.12.0",
     "org.slf4j"   %  "slf4j-api"          % "1.7.5",
     "org.slf4j"   %  "slf4j-log4j12"      % "1.7.5"
@@ -41,7 +42,8 @@ lazy val thrift = project.in(file("thrift"))
     name := "thrift",
     commonResolvers,
     commonScalaVersion,
-    commonDeps
+    commonDeps,
+
   )
 
 lazy val server = project.in(file("server"))
@@ -103,7 +105,11 @@ lazy val server = project.in(file("server"))
       "-Yliteral-types", // literals can appear in type position
       "-Xstrict-patmat-analysis", // more accurate reporting of failures of match exhaustivity
       "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
-    )
+    ),
+    assemblyMergeStrategy in assembly := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x => MergeStrategy.first
+    }
   ).dependsOn(thrift)
 
 lazy val server2 = project.in(file("server2"))
@@ -165,7 +171,11 @@ lazy val server2 = project.in(file("server2"))
       "-Yliteral-types", // literals can appear in type position
       "-Xstrict-patmat-analysis", // more accurate reporting of failures of match exhaustivity
       "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
-    )
+    ),
+    assemblyMergeStrategy in assembly := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x => MergeStrategy.first
+    }
   ).dependsOn(thrift)
 
 lazy val server3 = project.in(file("server3"))
@@ -227,7 +237,11 @@ lazy val server3 = project.in(file("server3"))
       "-Yliteral-types", // literals can appear in type position
       "-Xstrict-patmat-analysis", // more accurate reporting of failures of match exhaustivity
       "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
-    )
+    ),
+    assemblyMergeStrategy in assembly := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x => MergeStrategy.first
+    }
   ).dependsOn(thrift)
 
 
