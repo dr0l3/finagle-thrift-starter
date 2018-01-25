@@ -2,7 +2,7 @@ package com.example
 
 import com.example.thrift.generated.{BinaryService, User}
 import com.twitter.finagle.{Service, Thrift}
-import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.builder.{ClientBuilder, ServerBuilder}
 import com.twitter.finagle.stats.JavaLoggerStatsReceiver
 import com.twitter.finagle.thrift.{RichClientParam, ThriftClientRequest}
 import com.twitter.finagle.zipkin.thrift.ZipkinTracer
@@ -16,7 +16,9 @@ object Server extends App {
   BasicConfigurator.configure()
 
 
-  val tracer = ZipkinTracer.mk(host = "localhost",
+  println(System.getenv())
+
+  val tracer = ZipkinTracer.mk(host = "zipkin-service",
     port = 9410,
     statsReceiver = JavaLoggerStatsReceiver(),
     sampleRate = 1f)
@@ -26,24 +28,24 @@ object Server extends App {
       Thrift.client
         .withTracer(tracer)
         .withLabel("client1")
-        .build[BinaryService.MethodPerEndpoint]("localhost:1235")
+        .build[BinaryService.MethodPerEndpoint]("0.0.0.0:8001")
 
     def fetchBlob(id: Long): Future[String] = {
+      println("fetching")
       methodPerEndpoint.fetchBlob(1234L)
     }
   }
 
-
   val server = Thrift.server
     .withTracer(tracer)
     .withLabel("server")
-    .serveIface("localhost:1234", new ServerImpl)
+    .serveIface(":8000", new ServerImpl)
 
   val methodPerEndpoint: BinaryService.MethodPerEndpoint =
     Thrift.client
       .withTracer(tracer)
       .withLabel("client0")
-      .build[BinaryService.MethodPerEndpoint]("localhost:1234")
+      .build[BinaryService.MethodPerEndpoint]("localhost:8000")
 
 
   while (true) {

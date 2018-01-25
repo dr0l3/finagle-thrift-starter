@@ -13,7 +13,7 @@ object Server extends App {
 
   BasicConfigurator.configure()
 
-  val tracer = ZipkinTracer.mk(host = "localhost",
+  val tracer = ZipkinTracer.mk(host = "zipkin-service",
     port = 9410,
     statsReceiver = JavaLoggerStatsReceiver(),
     sampleRate = 1f)
@@ -23,7 +23,7 @@ object Server extends App {
       Thrift.client
         .withTracer(tracer)
         .withLabel("client2")
-        .build[BinaryService.MethodPerEndpoint]("localhost:1236")
+        .build[BinaryService.MethodPerEndpoint]("server3-service:8000")
 
     def fetchBlob(id: Long): Future[String] = {
       methodPerEndpoint.fetchBlob(1234L)
@@ -34,7 +34,7 @@ object Server extends App {
   val server = Thrift.server
     .withTracer(tracer)
     .withLabel("server2")
-    .serveIface("localhost:1235", new ServerImpl)
+    .serveIface(":8001", new ServerImpl)
 
   Await.ready(server)
 }

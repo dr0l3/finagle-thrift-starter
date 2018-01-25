@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: server-service
+spec:
+  ports:
+    - port: 8000
+      protocol: TCP
+
+  selector:
+    app: zipkin-test
+    service: server

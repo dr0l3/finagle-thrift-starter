@@ -27,7 +27,7 @@ object Server extends App {
 
 
 
-  val tracer = ZipkinTracer.mk(host = "localhost",
+  val tracer = ZipkinTracer.mk(host = "zipkin-service",
     port = 9410,
     statsReceiver = JavaLoggerStatsReceiver(),
     sampleRate = 1f)
@@ -35,6 +35,6 @@ object Server extends App {
   val server = Thrift.server
     .withLabel("server3")
     .withTracer(tracer)
-    .serveIface("localhost:1236", new ServerImpl)
+    .serveIface(":8000", new ServerImpl)
   Await.ready(server)
 }

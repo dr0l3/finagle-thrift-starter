@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zipkin
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+
+  template:
+    metadata:
+      labels:
+        app: zipkin-test
+        service: zipkin
+    spec:
+      containers:
+        - name: zipkin
+          image: "openzipkin/zipkin:latest"
+
+          ports:
+          - containerPort: 9411
+            name: "http"
+          - containerPort: 9410
+            name: "scribe"
+
+          env:
+            - name: SCRIBE_ENABLED
+              value: "true"
+            - name: JAVA_OPTS
+              value: "-Dlogging.level.zipkin=DEBUG -server -Xmx1536M -Xms1536M -XX:MaxMetaspaceSize=128M -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=70"
+
