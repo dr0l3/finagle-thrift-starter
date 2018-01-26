@@ -1,13 +1,12 @@
 package com.example
 
-import com.example.thrift.generated.{BinaryService, User}
-import com.twitter.finagle.{Service, Thrift}
-import com.twitter.finagle.builder.ClientBuilder
-import com.twitter.finagle.http.SpnegoAuthenticator.Authenticated.Http
+import com.example.thrift.generated.BinaryService
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Http, Service, Thrift}
 import com.twitter.finagle.stats.JavaLoggerStatsReceiver
-import com.twitter.finagle.thrift.{RichClientParam, ThriftClientRequest}
 import com.twitter.finagle.zipkin.thrift.ZipkinTracer
 import com.twitter.util.{Await, Future}
+import org.apache.thrift.protocol.TBinaryProtocol
 
 
 object Server extends App {
@@ -40,7 +39,6 @@ object Server extends App {
       methodPerEndpoint.fetchBlob(1234L)
     }
   }
-
 
   val server = Thrift.server
     .withTracer(tracer)
