@@ -17,7 +17,7 @@ object Server extends App {
 
   System.getenv().forEach((k,v) => println(s"$k -> $v"))
 
-  val clientAddr = s"${System.getenv("SERVICE3_SERVICE_HOST")}:${System.getenv("SERVICE3_SERVICE_SERVICE_PORT")}"
+  val clientAddr = s"${System.getenv("SERVICE3_SERVICE_HOST")}:${System.getenv("SERVICE3_SERVICE_PORT")}"
 //  val clientAddr = "ser:8000"
 //  val clientAddr = "127.0.0.1:1236"
   println(s"ClientAddr: $clientAddr")
