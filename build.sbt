@@ -30,28 +30,29 @@ lazy val commonDeps = Seq(
   )
 )
 
-lazy val commonMergeStrategy = assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs@_*) => MergeStrategy.discard
-  case x => MergeStrategy.first
-}
 
 lazy val commonDocker = dockerfile in docker := {
-  // The assembly task generates a fat JAR file
-  val artifact: File = assembly.value
-  val artifactTargetPath = s"/app/${artifact.name}"
+  val jarFile: File = sbt.Keys.`package`.in(Compile, packageBin).value
+  val classpath = (managedClasspath in Compile).value
+  val mainclass = mainClass.in(Compile, packageBin).value.getOrElse(sys.error("Expected exactly one main class"))
+  val jarTarget = s"/app/${jarFile.getName}"
+  // Make a colon separated classpath with the JAR file
+  val classpathString = classpath.files.map("/app/" + _.getName)
+    .mkString(":") + ":" + jarTarget
 
   new Dockerfile {
     from("anapsix/alpine-java")
-    add(artifact, artifactTargetPath)
     expose(8000)
-    entryPoint("java", "-jar", artifactTargetPath)
+    add(classpath.files, "/app/")
+    add(jarFile, jarTarget)
+    entryPoint("java", "-cp", classpathString, mainclass)
   }
 }
 
 def dockerImageNames(name: String) = {
   imageNames in docker := Seq(
     // Sets the latest tag
-    ImageName(s"dr0l3/fts-$name:latest")
+    ImageName(s"dr0l3/ftslim-$name:latest")
   )
 }
 
@@ -119,7 +120,6 @@ def baseproject(loc: String): Project =
       commonDeps,
       scalacOptions ++= commonScalaFlags,
       commonDocker,
-      commonMergeStrategy,
       dockerImageNames(loc)
     )
 
@@ -133,15 +133,15 @@ lazy val thrift = project.in(file("thrift"))
 
 lazy val server = baseproject("server")
   .dependsOn(thrift)
-  .enablePlugins(DockerPlugin)
+  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
 
 lazy val server2 = baseproject("server2")
   .dependsOn(thrift)
-  .enablePlugins(DockerPlugin)
+  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
 
 lazy val server3 = baseproject("server3")
   .dependsOn(thrift)
-  .enablePlugins(DockerPlugin)
+  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
 
 
 lazy val servers = (project in file("."))
