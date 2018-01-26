@@ -1,21 +1,27 @@
-apiVersion: extensions/v1beta1
 kind: Deployment
+apiVersion: extensions/v1beta1
 metadata:
   name: server3
 spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+
   template:
     metadata:
       labels:
-        app: app
+        app: zipkin-test
         service: server3
+
     spec:
       containers:
-      - name: email
-        image: "dr0l3/server3:latest"
-        imagePullPolicy: Always
-        env:
-        - name: JAVA_OPTS
-          value: "-Dcom.twitter.finagle.zipkin.initialSampleRate=1.0 -Dcom.twitter.finagle.zipkin.host=ZIPKIN_SERVICE_HOST:9410 -server -Xmx512M -Xms512M -XX:MaxMetaspaceSize=128M -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:InitiatingHeapOccupancyPercent=90 -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+        - name: server3
+          image: "dr0l3/fts-server3"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              name: "thrift"
+              protocol: TCP
 
-        ports:
-        - containerPort: 1236
+          env:
+            - name: JAVA_OPTS
+              value: "-Dcom.twitter.finagle.zipkin.initialSampleRate=1.0 -Dcom.twitter.finagle.zipkin.host=zipkin-service:9410 -server -Xmx512M -Xms512M -XX:MaxMetaspaceSize=128M -XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:InitiatingHeapOccupancyPercent=90 -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"

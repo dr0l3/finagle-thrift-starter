@@ -1,10 +1,12 @@
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: service3
+  name: server3-service
 spec:
   ports:
-  - port: 1236
+    - port: 8000
+      protocol: TCP
+
   selector:
-    app: app
+    app: zipkin-test
     service: server3

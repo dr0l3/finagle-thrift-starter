@@ -1,14 +1,17 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: zipkin
+  name: zipkin-service
 spec:
   ports:
-  - port: 9410
-    targetPort: "scribe"
-    name: "scribe"
-    protocol: TCP
-  - port: 9411
-    targetPort: "http"
-    name: "http"
-    protocol: TCP
+    - port: 9410
+      name: "scribe"
+      protocol: TCP
+
+    - port: 9411
+      name: "http"
+      protocol: TCP
+
+  selector:
+    app: zipkin-test
+    service: zipkin
