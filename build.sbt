@@ -52,7 +52,7 @@ lazy val commonDocker = dockerfile in docker := {
 def dockerImageNames(name: String) = {
   imageNames in docker := Seq(
     // Sets the latest tag
-    ImageName(s"dr0l3/ftslim-$name:latest")
+    ImageName(s"dr0l3/fts-$name:latest")
   )
 }
 
