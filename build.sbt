@@ -13,23 +13,25 @@ lazy val commonScalaVersion = Seq(
   scalaVersion := "2.12.4-bin-typelevel-4"
 )
 
+val twitterVersion = "17.12.0"
+
 lazy val commonDeps = Seq(
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-http"       % "17.12.0",
-    "org.apache.thrift" % "libthrift"     % "0.9.2",
-    "com.twitter" %% "scrooge-core"       % "17.12.0" exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-thrift"     % "17.12.0" exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-mux"        % "17.12.0",
-    "com.twitter" %% "finagle-thriftmux"  % "17.12.0",
-    "com.twitter" %% "finagle-zipkin"     % "17.12.0",
-    "org.slf4j"   %  "slf4j-api"          % "1.7.5",
-    "org.slf4j"   %  "slf4j-log4j12"      % "1.7.5"
+    "com.twitter" %% "finagle-http" % twitterVersion,
+    "org.apache.thrift" % "libthrift" % "0.9.2",
+    "com.twitter" %% "scrooge-core" % twitterVersion exclude("com.twitter", "libthrift"),
+    "com.twitter" %% "finagle-thrift" % twitterVersion exclude("com.twitter", "libthrift"),
+    "com.twitter" %% "finagle-mux" % twitterVersion,
+    "com.twitter" %% "finagle-thriftmux" % twitterVersion,
+    "com.twitter" %% "finagle-zipkin" % twitterVersion,
+    "org.slf4j" % "slf4j-api" % "1.7.5",
+    "org.slf4j" % "slf4j-log4j12" % "1.7.5"
 
   )
 )
 
 lazy val commonMergeStrategy = assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case PathList("META-INF", xs@_*) => MergeStrategy.discard
   case x => MergeStrategy.first
 }
 
@@ -108,56 +110,38 @@ lazy val commonScalaFlags = Seq(
   "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
 )
 
+def baseproject(loc: String): Project =
+  Project(loc, file(loc))
+    .settings(
+      name := loc,
+      commonResolvers,
+      commonScalaVersion,
+      commonDeps,
+      scalacOptions ++= commonScalaFlags,
+      commonDocker,
+      commonMergeStrategy,
+      dockerImageNames(loc)
+    )
+
 
 lazy val thrift = project.in(file("thrift"))
   .settings(
     name := "thrift",
     commonResolvers,
     commonScalaVersion,
-    commonDeps,
+    commonDeps)
 
-  )
-
-
-lazy val server = project.in(file("server"))
-  .settings(
-    name := "server",
-    commonResolvers,
-    commonScalaVersion,
-    commonDeps,
-    scalacOptions ++= commonScalaFlags,
-    commonDocker,
-    commonMergeStrategy,
-    dockerImageNames("server")
-  )
+lazy val server = baseproject("server")
   .dependsOn(thrift)
   .enablePlugins(DockerPlugin)
 
+lazy val server2 = baseproject("server2")
+  .dependsOn(thrift)
+  .enablePlugins(DockerPlugin)
 
-lazy val server2 = project.in(file("server2"))
-  .settings(
-    name := "server2",
-    commonResolvers,
-    commonScalaVersion,
-    commonDeps,
-    scalacOptions ++= commonScalaFlags,
-    commonDocker,
-    commonMergeStrategy,
-    dockerImageNames("server2")
-  ).dependsOn(thrift)
-
-lazy val server3 = project.in(file("server3"))
-  .settings(
-    name := "server3",
-    commonResolvers,
-    commonScalaVersion,
-    commonDeps,
-    scalacOptions ++= commonScalaFlags,
-    commonDocker,
-    commonMergeStrategy,
-    dockerImageNames("server3")
-    ).dependsOn(thrift)
-    .enablePlugins(DockerPlugin)
+lazy val server3 = baseproject("server3")
+  .dependsOn(thrift)
+  .enablePlugins(DockerPlugin)
 
 
 lazy val servers = (project in file("."))

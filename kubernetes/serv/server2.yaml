@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: server2-service
+  name: service2
 spec:
   ports:
     - port: 8000
