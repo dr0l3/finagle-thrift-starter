@@ -3,7 +3,7 @@ apiVersion: extensions/v1beta1
 metadata:
   name: server2
 spec:
-  replicas: 3
+  replicas: 1
   revisionHistoryLimit: 3
 
   template:

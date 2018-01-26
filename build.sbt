@@ -19,8 +19,8 @@ lazy val commonDeps = Seq(
     "org.apache.thrift" % "libthrift"     % "0.9.2",
     "com.twitter" %% "scrooge-core"       % "17.12.0" exclude("com.twitter", "libthrift"),
     "com.twitter" %% "finagle-thrift"     % "17.12.0" exclude("com.twitter", "libthrift"),
-//    "com.twitter" %% "finagle-mux"        % "17.12.0",
-//    "com.twitter" %% "finagle-thriftmux"  % "17.12.0",
+    "com.twitter" %% "finagle-mux"        % "17.12.0",
+    "com.twitter" %% "finagle-thriftmux"  % "17.12.0",
     "com.twitter" %% "finagle-zipkin"     % "17.12.0",
     "org.slf4j"   %  "slf4j-api"          % "1.7.5",
     "org.slf4j"   %  "slf4j-log4j12"      % "1.7.5"
