@@ -1,7 +1,6 @@
 lazy val commonResolvers = Seq(
-  resolvers += "twitter-repo" at "https://maven.twttr.com",
+  resolvers += "twitter-repo".at("https://maven.twttr.com"),
   resolvers += Resolver.bintrayRepo("twittercsl", "sbt-plugins/scrooge-sbt-plugin"),
-
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
@@ -9,43 +8,41 @@ lazy val commonResolvers = Seq(
 )
 
 lazy val commonScalaVersion = Seq(
-  scalaOrganization := "org.typelevel",
-  scalaVersion := "2.12.4-bin-typelevel-4"
 )
 
-val twitterVersion = "17.12.0"
+val twitterVersion = "18.3.0"
+
+val Http4sVersion = "0.18.21"
+val LogbackVersion = "1.2.3"
 
 lazy val commonDeps = Seq(
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-http" % twitterVersion,
+//    "com.twitter" %% "finagle-http" % twitterVersion,
     "org.apache.thrift" % "libthrift" % "0.9.2",
-    "com.twitter" %% "scrooge-core" % twitterVersion exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-thrift" % twitterVersion exclude("com.twitter", "libthrift"),
-    "com.twitter" %% "finagle-mux" % twitterVersion,
-    "com.twitter" %% "finagle-thriftmux" % twitterVersion,
-    "com.twitter" %% "finagle-zipkin" % twitterVersion,
+//    ("com.twitter" %% "scrooge-core" % twitterVersion).exclude("com.twitter", "libthrift"),
+    "com.twitter" %% "finagle-zipkin-core" % twitterVersion,
+    "com.twitter" %% "finagle-zipkin-scribe" % twitterVersion,
     "org.slf4j" % "slf4j-api" % "1.7.5",
-    "org.slf4j" % "slf4j-log4j12" % "1.7.5"
-
+    "org.slf4j" % "slf4j-log4j12" % "1.7.5",
+    "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
+    "org.http4s" %% "http4s-circe" % Http4sVersion,
+    "org.http4s" %% "http4s-dsl" % Http4sVersion,
+    "ch.qos.logback" % "logback-classic" % LogbackVersion,
+    "org.http4s" %% "http4s-dsl" % Http4sVersion,
+    "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
+    "org.http4s" %% "http4s-blaze-client" % Http4sVersion
   )
 )
 
-
 lazy val commonDocker = dockerfile in docker := {
-  val jarFile: File = sbt.Keys.`package`.in(Compile, packageBin).value
-  val classpath = (managedClasspath in Compile).value
-  val mainclass = mainClass.in(Compile, packageBin).value.getOrElse(sys.error("Expected exactly one main class"))
-  val jarTarget = s"/app/${jarFile.getName}"
-  // Make a colon separated classpath with the JAR file
-  val classpathString = classpath.files.map("/app/" + _.getName)
-    .mkString(":") + ":" + jarTarget
+  val artifact: File = assembly.value
+  val artifactTargetPath = s"/app/${artifact.name}"
 
   new Dockerfile {
     from("anapsix/alpine-java")
     expose(8000)
-    add(classpath.files, "/app/")
-    add(jarFile, jarTarget)
-    entryPoint("java", "-cp", classpathString, mainclass)
+    add(artifact, artifactTargetPath)
+    entryPoint("java", "-jar", artifactTargetPath)
   }
 }
 
@@ -58,7 +55,8 @@ def dockerImageNames(name: String) = {
 
 lazy val commonScalaFlags = Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
-  "-encoding", "utf-8", // Specify character encoding used by source files.
+  "-encoding",
+  "utf-8", // Specify character encoding used by source files.
   "-explaintypes", // Explain type errors in more detail.
   "-feature", // Emit warning and location for usages of features that should be imported explicitly.
   "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
@@ -101,48 +99,51 @@ lazy val commonScalaFlags = Seq(
   "-Ywarn-unused:params", // Warn if a value parameter is unused.
   "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates", // Warn if a private member is unused.
-  "-Ywarn-value-discard", // Warn when non-Unit expression results are unused.
-
-  //typelevel
-  "-Yinduction-heuristics", // speeds up the compilation of inductive implicit resolution
-  "-Ykind-polymorphism", // type and method definitions with type parameters of arbitrary kinds
-  "-Yliteral-types", // literals can appear in type position
-  "-Xstrict-patmat-analysis", // more accurate reporting of failures of match exhaustivity
-  "-Xlint:strict-unsealed-patmat" // warn on inexhaustive matches against unsealed traits
+  "-Ywarn-value-discard" // Warn when non-Unit expression results are unused.
 )
 
 def baseproject(loc: String): Project =
-  Project(loc, file(loc))
-    .settings(
-      name := loc,
-      commonResolvers,
-      commonScalaVersion,
-      commonDeps,
-      scalacOptions ++= commonScalaFlags,
-      commonDocker,
-      dockerImageNames(loc)
-    )
-
-
-lazy val thrift = project.in(file("thrift"))
-  .settings(
-    name := "thrift",
+  Project(loc, file(loc)).settings(
+    name := loc,
     commonResolvers,
     commonScalaVersion,
-    commonDeps)
+    commonDeps,
+    scalacOptions ++= commonScalaFlags,
+    commonDocker,
+    dockerImageNames(loc),
 
-lazy val server = baseproject("server")
-  .dependsOn(thrift)
-  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+  )
 
-lazy val server2 = baseproject("server2")
-  .dependsOn(thrift)
-  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+lazy val thrift = project.in(file("thrift")).settings(name := "thrift", commonResolvers, commonScalaVersion, commonDeps)
 
-lazy val server3 = baseproject("server3")
-  .dependsOn(thrift)
-  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+lazy val server = baseproject("server").dependsOn(thrift).enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+  .settings(assemblyMergeStrategy in assembly :=  {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
 
+lazy val server2 = baseproject("server2").dependsOn(thrift).enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+  .settings(assemblyMergeStrategy in assembly :=  {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
 
-lazy val servers = (project in file("."))
-  .aggregate(server, server2, server3)
+lazy val server3 = baseproject("server3").dependsOn(thrift).enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
+  .settings(assemblyMergeStrategy in assembly :=  {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
+
+lazy val server4 = baseproject("server4").dependsOn(thrift).enablePlugins(sbtdocker.DockerPlugin)
+  .settings(assemblyMergeStrategy in assembly :=  {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
+
+lazy val server5 = baseproject("server5").dependsOn(thrift).enablePlugins(sbtdocker.DockerPlugin)
+  .settings(assemblyMergeStrategy in assembly :=  {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first
+  })
+
+lazy val servers = (project in file(".")).aggregate(server, server2, server3)

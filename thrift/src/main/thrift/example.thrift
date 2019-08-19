@@ -30,3 +30,19 @@ service BinaryService {
 service FairyService {
   Fairy getFairy(1: string id)
 }
+
+service TestService {
+  string hello(1: string name)
+  string loadTest(1: i64 round)
+}
+
+
+service Service2 {
+  string hello(1: string id)
+  string hello2(1: string id)
+}
+
+service Service3 {
+  string world(1: string id)
+  string world2(1: string id)
+}
